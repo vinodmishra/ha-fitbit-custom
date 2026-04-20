@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: ["main", "dev"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  hassfest:
+    name: Hassfest validation
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+      - uses: "home-assistant/actions/hassfest@master"
+
+  hacs:
+    name: HACS validation
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+      - name: HACS Action
+        uses: hacs/action@main
+        with:
+          category: integration
+
+  lint:
+    name: Lint (ruff)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Install ruff
+        run: pip install ruff
+      - name: Run ruff check
+        run: ruff check custom_components/fitbit/
+      - name: Run ruff format check
+        run: ruff format --check custom_components/fitbit/

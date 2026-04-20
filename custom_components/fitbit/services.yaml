@@ -1,0 +1,43 @@
+log_body_measurements:
+  name: Log Body Measurements
+  description: Log weight and/or body fat to Fitbit. Can either provide exact body fat percentage, or provide impedance to calculate it automatically using your Fitbit profile data.
+  fields:
+    weight:
+      name: Weight
+      description: The weight to log (in kg or lbs depending on your Fitbit account settings).
+      required: false
+      selector:
+        number:
+          min: 0
+          max: 500
+          step: 0.01
+    fat:
+      name: Body Fat Percentage
+      description: The exact body fat percentage to log.
+      required: false
+      selector:
+        number:
+          min: 0
+          max: 100
+          step: 0.01
+          unit_of_measurement: '%'
+    impedance:
+      name: Impedance
+      description: Impedance reading from a smart scale (used for calculation if fat is not provided).
+      required: false
+      selector:
+        number:
+          min: 0
+          max: 2000
+    date:
+      name: Date
+      description: Date of the measurement. If not provided, current date is used.
+      required: false
+      selector:
+        date:
+    time:
+      name: Time
+      description: Time of the measurement (HH:mm:ss). If not provided, current time is used.
+      required: false
+      selector:
+        time:
