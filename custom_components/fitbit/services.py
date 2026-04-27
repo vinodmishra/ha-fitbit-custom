@@ -18,7 +18,9 @@ _LOGGER = logging.getLogger(__name__)
 async def async_setup_services(hass: HomeAssistant) -> None:
     """Register services for Fitbit."""
 
-    async def _get_body_api(hass: HomeAssistant, entry_id: str | None = None) -> tuple[BodyApi, any]:
+    async def _get_body_api(
+        hass: HomeAssistant, entry_id: str | None = None
+    ) -> tuple[BodyApi, any]:
         """Get the body API and fitbit_api from the specified config entry, or first available if not specified."""
         entries = hass.config_entries.async_entries(DOMAIN)
         if not entries:
@@ -31,7 +33,9 @@ async def async_setup_services(hass: HomeAssistant) -> None:
                     entry = e
                     break
             if entry is None:
-                raise HomeAssistantError(f"No Fitbit config entry found with entry_id: {entry_id}")
+                raise HomeAssistantError(
+                    f"No Fitbit config entry found with entry_id: {entry_id}"
+                )
         else:
             entry = entries[0]
 
