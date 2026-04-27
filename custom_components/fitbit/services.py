@@ -18,13 +18,23 @@ _LOGGER = logging.getLogger(__name__)
 async def async_setup_services(hass: HomeAssistant) -> None:
     """Register services for Fitbit."""
 
-    async def _get_body_api(hass: HomeAssistant) -> tuple[BodyApi, any]:
-        """Get the body API and fitbit_api from the first available config entry."""
+    async def _get_body_api(hass: HomeAssistant, entry_id: str | None = None) -> tuple[BodyApi, any]:
+        """Get the body API and fitbit_api from the specified config entry, or first available if not specified."""
         entries = hass.config_entries.async_entries(DOMAIN)
         if not entries:
             raise HomeAssistantError("No Fitbit config entries found.")
 
-        entry = entries[0]
+        entry = None
+        if entry_id:
+            for e in entries:
+                if getattr(e, "entry_id", None) == entry_id:
+                    entry = e
+                    break
+            if entry is None:
+                raise HomeAssistantError(f"No Fitbit config entry found with entry_id: {entry_id}")
+        else:
+            entry = entries[0]
+
         if not hasattr(entry, "runtime_data") or entry.runtime_data is None:
             raise HomeAssistantError("Fitbit integration not ready.")
 
@@ -42,11 +52,12 @@ async def async_setup_services(hass: HomeAssistant) -> None:
         impedance = call.data.get("impedance")
         date = call.data.get("date", datetime.date.today())
         time = call.data.get("time", datetime.datetime.now().strftime("%H:%M:%S"))
+        entry_id = call.data.get("entry_id")
 
         if isinstance(time, datetime.time):
             time = time.strftime("%H:%M:%S")
 
-        body_api, fitbit_api = await _get_body_api(hass)
+        body_api, fitbit_api = await _get_body_api(hass, entry_id)
 
         if weight is not None:
             _LOGGER.debug("Logging weight: %s on %s at %s", weight, date, time)
