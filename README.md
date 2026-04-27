@@ -1,4 +1,3 @@
-
 # Fitbit Custom for Home Assistant
 
 
@@ -32,7 +31,7 @@ You do **not** need to create a new app if you already have one—just update th
 ## Acknowledgements
 
 
-This custom component is built directly upon the official [Home Assistant Fitbit Integration](https://github.com/home-assistant/core/tree/dev/homeassistant/components/fitbit). Full credit goes to the Home Assistant core team and the original contributors (including @allenporter) for their exceptional work building the foundation.
+This custom component is built directly upon the official [Home Assistant Fitbit Integration](https://github.com/home-assistant/core/tree/dev/homeassistant/components/fitbit). Full credit goes to the Home Assistant core team and the original contributors (specially [@allenporter](https://github.com/allenporter)) for their exceptional work building the integration.
 
 
 ## Installation
@@ -95,3 +94,32 @@ data:
   impedance: 505
 ```
 *Note: The integration will automatically fetch your gender, height, and age from your Fitbit profile to perform the calculation!*
+
+## Selecting a Specific Fitbit Account (Multi-Account Support)
+
+> **Note:** To use multiple Fitbit accounts with this integration, your Fitbit developer app must be created with **OAuth 2.0 Application Type** set to `Server`, not `Personal`. The `Personal` type only allows a single account connection. If you need to support multiple accounts, create a new app or edit your existing app and change the Application Type to `Server`.
+
+If you have multiple Fitbit accounts configured, you can now select which account to use when logging body measurements by specifying the `entry_id` in the service call.
+
+### How to Find the entry_id
+
+1. Go to **Settings > Devices & Services** in Home Assistant.
+2. Click on the three dots (⋮) for the Fitbit integration you want to use.
+3. Select **System Options** or **Show Info** (depending on your Home Assistant version).
+4. Copy the `entry_id` value as shown below:
+
+![How to copy entry_id](images/entry_id.png)
+
+### Example: Log weight for a specific account
+```yaml
+action: fitbit.log_body_measurements
+data:
+  weight: 75.5
+  entry_id: "your_entry_id_here"
+```
+
+### New Service Action in Developer Tools
+
+You will see the new `entry_id` field available when calling the service in Home Assistant Developer Tools:
+
+![Service action with entry_id](images/service.png)
