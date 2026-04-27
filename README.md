@@ -74,6 +74,36 @@ You need to register a personal application on the Fitbit Developer site to obta
 7. Enter your **OAuth Client ID** and **Client Secret** when prompted, and complete the authorization flow in your browser.
 
 
+## Logging Body Measurements: Blueprint or Manual Action
+
+You can log weight and body composition data to Fitbit in two ways:
+
+- **Use the included Home Assistant blueprint** for easy, automated logging from your smart scale sensors (recommended for most users).
+- **Call the `fitbit.log_body_measurements` action directly** in your own automations or scripts (see documentation below).
+
+### Quick Start: Add the Blueprint
+
+[![Add Blueprint](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https://github.com/vinodmishra/ha-fitbit-custom/blob/main/blueprints/fitbit_body_scale_logger.yaml)
+
+Or, manually import the blueprint from this repo:
+- Go to **Settings > Automations & Scenes > Blueprints** in Home Assistant.
+- Click **Import Blueprint** and paste the url: `https://github.com/vinodmishra/ha-fitbit-custom/blob/main/blueprints/fitbit_body_scale_logger.yaml`
+
+**Features:**
+- Logs weight, body fat %, and impedance to Fitbit.
+- Supports minimum/maximum weight thresholds for filtering.
+- Multi-account support: select a Fitbit entity to automatically route data to the correct profile (no need to manually find entry_id).
+- Optional sensors for body fat and impedance.
+
+**Inputs:**
+- **Weight Sensor (Required):** The sensor providing your weight/mass reading.
+- **Fat Sensor (Optional):** The sensor providing body fat percentage.
+- **Impedance Sensor (Optional):** The sensor providing impedance data.
+- **Fitbit Target Profile (Optional):** Select any Fitbit sensor entity from the account you want to sync to. The blueprint extracts the required entry ID automatically.
+- **Minimum/Maximum Weight Thresholds (Optional):** Only sync if weight is within these bounds.
+
+---
+
 ## Using the `log_body_measurements` Action
 
 You can find the `fitbit.log_body_measurements` action in your Home Assistant Developer Tools or use it in automations.
