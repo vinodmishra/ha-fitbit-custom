@@ -1,0 +1,99 @@
+blueprint:
+  name: Fitbit Body Scale Logger
+  description: >
+    Logs weight and optional body composition data to Fitbit.
+    Select a Fitbit entity to automatically route data to the correct profile.
+  domain: automation
+  input:
+    weight_sensor:
+      name: Weight Sensor (Required)
+      description: The sensor that provides your mass/weight reading.
+      selector:
+        entity:
+          domain: sensor
+    fat_sensor:
+      name: Fat Sensor (Optional)
+      description: The sensor that provides body fat percentage.
+      default: ""
+      selector:
+        entity:
+          domain: sensor
+    impedance_sensor:
+      name: Impedance Sensor (Optional)
+      description: The sensor that provides impedance data.
+      default: ""
+      selector:
+        entity:
+          domain: sensor
+    fitbit_entity:
+      name: Fitbit Target Profile (Optional)
+      description: Select ANY existing sensor from the Fitbit account you want to sync to (like your daily steps sensor). The blueprint automatically extracts the required hidden entry ID from it!
+      default: ""
+      selector:
+        entity:
+          integration: fitbit
+    min_weight:
+      name: Minimum Weight Threshold (Optional)
+      description: Weight must be ABOVE this value to sync (leave 0 to disable).
+      default: 0
+      selector:
+        number:
+          min: 0
+          max: 500
+          step: 0.1
+          mode: box
+    max_weight:
+      name: Maximum Weight Threshold (Optional)
+      description: Weight must be BELOW this value to sync (leave 0 to disable).
+      default: 0
+      selector:
+        number:
+          min: 0
+          max: 500
+          step: 0.1
+          mode: box
+
+variables:
+  fat_sensor: !input fat_sensor
+  impedance_sensor: !input impedance_sensor
+  fitbit_entity: !input fitbit_entity
+  min_w: !input min_weight
+  max_w: !input max_weight
+
+trigger:
+  - platform: state
+    entity_id: !input weight_sensor
+
+condition:
+  - condition: template
+    value_template: >
+      {% set weight = trigger.to_state.state | float(0) %}
+      {% set min_val = min_w | float(0) %}
+      {% set max_val = max_w | float(0) %}
+      
+      {% set min_ok = min_val == 0 or weight > min_val %}
+      {% set max_ok = max_val == 0 or weight < max_val %}
+      
+      {{ weight > 0 and min_ok and max_ok }}
+
+action:
+  - action: fitbit.log_body_measurements
+    data: >
+      {% set payload = {"weight": trigger.to_state.state | float(0)} %}
+      
+      {% if fat_sensor and states(fat_sensor) not in ['unknown', 'unavailable', ''] %}
+        {% set payload = dict(payload, fat=states(fat_sensor) | float(0)) %}
+      {% endif %}
+      
+      {% if impedance_sensor and states(impedance_sensor) not in ['unknown', 'unavailable', ''] %}
+        {% set payload = dict(payload, impedance=states(impedance_sensor) | int(0)) %}
+      {% endif %}
+      
+      {# Extract the 26-character config_entry_id from the chosen entity #}
+      {% if fitbit_entity %}
+        {% set payload = dict(payload, entry_id=config_entry_id(fitbit_entity)) %}
+      {% endif %}
+      
+      {{ payload }}
+
+mode: single
